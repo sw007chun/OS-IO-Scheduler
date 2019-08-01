@@ -6,7 +6,6 @@
  */
 
 #include "SSTF_IO_Scheduler.h"
-#include <cstdlib>
 
 SSTFScheduler::SSTFScheduler() {
 	current_event = NULL;

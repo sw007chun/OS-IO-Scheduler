@@ -9,6 +9,7 @@
 #define IO_SCHEDULER_H_
 
 #include <iostream>
+#include <cstdlib>
 #include "IO_Event.h"
 using namespace std;
 

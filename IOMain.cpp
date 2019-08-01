@@ -14,6 +14,7 @@
 #include "IO_Scheduler.h"
 #include "FIFO_IO_Scheduler.h"
 #include "SSTF_IO_Scheduler.h"
+#include "Look_IO_Scheduler.h"
 #include "IO_Event.h"
 using namespace std;
 
@@ -53,6 +54,7 @@ int main (int argc, char* argv[]) {
 		sched = new SSTFScheduler();
 		break;
 	case 's':
+		sched = new LookScheduler();
 		break;
 	case 'c':
 		break;
