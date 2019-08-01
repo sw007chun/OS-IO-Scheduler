@@ -13,6 +13,7 @@
 #include "Disk.h"
 #include "IO_Scheduler.h"
 #include "FIFO_IO_Scheduler.h"
+#include "SSTF_IO_Scheduler.h"
 #include "IO_Event.h"
 using namespace std;
 
@@ -49,6 +50,7 @@ int main (int argc, char* argv[]) {
 		sched = new FIFOScheduler();
 		break;
 	case 'j':
+		sched = new SSTFScheduler();
 		break;
 	case 's':
 		break;
@@ -87,20 +89,22 @@ int main (int argc, char* argv[]) {
 	int current_io_num = 0;
 	Disk disk;
 	IOEvent *current_io = NULL;
+	trace("TRACE");
 	while (true) {
 		if (current_io_num < op_num && io_arrival.at(current_io_num)->HasArrived(current_time)) {
 			sched->addIORequest(io_arrival.at(current_io_num));
-			trace( left << current_time << ": " << setw(5) << current_io_num << " add " << io_arrival.at(current_io_num)->GetTarget() );
+			trace( left << current_time << ": " << right << setw(5) << current_io_num << " add " << io_arrival.at(current_io_num)->GetTarget() );
 			current_io_num++;
 		}
 		if (disk.IsActive()){
-			if (!disk.HasReachedTarget()) {
-				disk.MoveTrack();
-			}
 			if (disk.HasReachedTarget()) {
 				current_io->SetEndTime(current_time);
-				trace( left << current_time << ": " << setw(5) << current_io->GetOPNum() << " finish " << current_io->GetIOTime() );
+				trace( left << current_time << ": " << right << setw(5) << current_io->GetOPNum() << " finish " << current_io->GetIOTime() );
 				disk.StopTrack();
+			}
+			if (!disk.HasReachedTarget()) {
+				disk.MoveTrack();
+				current_time++;
 			}
 		}
 		if (!disk.IsActive()) {
@@ -108,12 +112,15 @@ int main (int argc, char* argv[]) {
 			if (current_io != NULL) {
 				disk.SetTargetTrack(current_io->GetTarget());
 				current_io->SetStartTime(current_time);
-				trace( left << current_time << ": " << setw(5) << current_io->GetOPNum() << " issue " << current_io->GetTarget() << ' ' << disk.GetCurrentTrack() );
+				trace( left << current_time << ": " << right << setw(5) << current_io->GetOPNum() << " issue " << current_io->GetTarget() << ' ' << disk.GetCurrentTrack() );
 			} else if (current_io_num == op_num){
 				break;
+			} else {
+				current_time++;
 			}
 		}
-		current_time++;
+//		if (disk.GetCurrentTrack() != current_io->GetTarget())
+//			current_time++;
 	}
 
 	double avg_turnaround = 0;
