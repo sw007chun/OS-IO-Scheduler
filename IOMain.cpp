@@ -16,6 +16,7 @@
 #include "SSTF_IO_Scheduler.h"
 #include "Look_IO_Scheduler.h"
 #include "CLook_IO_Scheduler.h"
+#include "FLook_IO_Scheduler.h"
 #include "IO_Event.h"
 using namespace std;
 
@@ -61,6 +62,7 @@ int main (int argc, char* argv[]) {
 		sched = new CLookScheduler();
 		break;
 	case 'f':
+		sched = new FLookScheduler();
 		break;
 	case '?':
 		break;
