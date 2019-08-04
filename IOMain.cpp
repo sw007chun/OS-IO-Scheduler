@@ -21,12 +21,14 @@
 using namespace std;
 
 int dotrace = 0;
+int qtrace = 0;
+int ftrace = 0;
 
 #define trace(fmt...) do { if (dotrace > 0) { cout << fmt << endl; fflush(stdout); } } while (0)
 
 int main (int argc, char* argv[]) {
 	char c, algo;
-	ifstream input_file;
+ 	ifstream input_file;
 	IOScheduler *sched;
 
 	while ((c= getopt(argc, argv, "s:qvf")) != -1) {
@@ -35,11 +37,13 @@ int main (int argc, char* argv[]) {
 			algo = *optarg;
 			break;
 		case 'q':
+			qtrace = 1;
 			break;
 		case 'v':
 			dotrace = 1;
 			break;
 		case 'f':
+			ftrace = 1;
 			break;
 		case '?':
 			break;
@@ -98,12 +102,14 @@ int main (int argc, char* argv[]) {
 	trace("TRACE");
 	while (true) {
 		if (current_io_num < op_num && io_arrival.at(current_io_num)->HasArrived(current_time)) {
-			sched->addIORequest(io_arrival.at(current_io_num));
 			trace( left << current_time << ": " << right << setw(5) << current_io_num << " add " << io_arrival.at(current_io_num)->GetTarget() );
+			sched->addIORequest(io_arrival.at(current_io_num));
 			current_io_num++;
 		}
 		if (disk.IsActive()){
 			if (disk.HasReachedTarget()) {
+				if (current_time == 1271)
+					cout << ' ' <<endl;
 				current_io->SetEndTime(current_time);
 				trace( left << current_time << ": " << right << setw(5) << current_io->GetOPNum() << " finish " << current_io->GetIOTime() );
 				disk.StopTrack();
@@ -125,8 +131,6 @@ int main (int argc, char* argv[]) {
 				current_time++;
 			}
 		}
-//		if (disk.GetCurrentTrack() != current_io->GetTarget())
-//			current_time++;
 	}
 
 	double avg_turnaround = 0;

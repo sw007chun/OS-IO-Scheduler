@@ -10,8 +10,11 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <climits>
 #include "IO_Event.h"
 using namespace std;
+
+extern int qtrace;
 
 class IOScheduler {
 private:

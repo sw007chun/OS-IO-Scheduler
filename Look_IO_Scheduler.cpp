@@ -17,33 +17,35 @@ void LookScheduler::addIORequest(IOEvent *new_IO_request) {
 }
 IOEvent* LookScheduler::getIOEvent() {
 	if (!io_q.empty()) {
-		if (current_event == NULL)
-			current_event = io_q.front();
-		list <IOEvent*>::iterator it = io_q.begin();
-//		int current_position = current_event->GetTarget();
-		int distance = updown * (io_q.front()->GetTarget() - current_event->GetTarget());
-		int shortest_distance = distance;
-		list <IOEvent*>::iterator shortest_event = it;
-		it++;
-		for (; it != io_q.end(); it++) {
-			distance = updown * ((*it)->GetTarget() - current_event->GetTarget());
+		int current_position = current_event == NULL ? 0 : current_event->GetTarget();
+		int distance = updown * (io_q.front()->GetTarget() - current_position);
+		int shortest_distance = INT_MIN;
+		list <IOEvent*>::iterator it;
+		list <IOEvent*>::iterator shortest_event;
+		if (qtrace)
+				cout << "\tGet: (";
+		for (it = io_q.begin(); it != io_q.end(); it++) {
+			distance = updown * ((*it)->GetTarget() - current_position);
 			if (shortest_distance < 0 || (distance >= 0 && distance < shortest_distance)) {
 				shortest_distance = distance;
 				shortest_event = it;
 			}
+			if (qtrace && distance >= 0)
+				cout << (*it)->GetOPNum() << ':' << abs((*it)->GetTarget() - current_position) << ' ';
 		}
 		if (shortest_distance < 0) {
 			updown = -1 * updown;
+			if (qtrace)
+				cout << ") --> change direction to " << updown << endl;
 			getIOEvent();
 		} else {
+			if (qtrace)
+				cout << ") --> "<< (*shortest_event)->GetOPNum() <<" dir=" << updown << endl;
 			current_event = *shortest_event;
-	//		cout <<(*shortest_event)->GetOPNum() << endl;
 			io_q.erase(shortest_event);
-	//		cout << io_q.front()->GetOPNum() << endl;
 		}
 		return current_event;
 	} else {
 		return NULL;
 	}
 }
-
