@@ -17,13 +17,10 @@ using namespace std;
 extern int qtrace;
 
 class IOScheduler {
-private:
-
 public:
-	IOScheduler();
 	virtual ~IOScheduler() { };
 	virtual void addIORequest(IOEvent *new_IO_request) = 0;
-	virtual IOEvent* getIOEvent() = 0;
+	virtual IOEvent* getIOEvent(int current_track) = 0;
 
 };
 

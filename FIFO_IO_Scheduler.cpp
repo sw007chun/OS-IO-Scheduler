@@ -7,13 +7,10 @@
 
 #include "FIFO_IO_Scheduler.h"
 
-FIFOScheduler::FIFOScheduler() {
-
-}
 void FIFOScheduler::addIORequest(IOEvent *new_IO_request) {
 	io_q.push(new_IO_request);
 }
-IOEvent* FIFOScheduler::getIOEvent() {
+IOEvent* FIFOScheduler::getIOEvent(int current_track) {
 	if (!io_q.empty()) {
 		IOEvent *temp = io_q.front();
 		io_q.pop();

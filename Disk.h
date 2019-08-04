@@ -8,7 +8,6 @@
 #ifndef DISK_H_
 #define DISK_H_
 
-
 class Disk {
 private:
 	bool active;
@@ -25,6 +24,5 @@ public:
 	void StopTrack();
 	int GetTotalMovement();
 };
-
 
 #endif /* DISK_H_ */

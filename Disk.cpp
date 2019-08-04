@@ -21,6 +21,7 @@ int Disk::GetCurrentTrack() {
 	return track;
 }
 void Disk::MoveTrack() {
+	//moves track closer to the target
 	if (track < target) {
 		track++;
 	} else if (track > target)  {

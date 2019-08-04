@@ -15,9 +15,12 @@ FLookScheduler::FLookScheduler() {
 	current_event = NULL;
 	updown = 1;
 	change_direction = false;
+	is_empty = true;
 }
 void FLookScheduler::addIORequest(IOEvent *new_IO_request) {
 	add_q->push_back(new_IO_request);
+	is_empty = false;
+
 	if (qtrace) {
 		list <IOEvent*>::iterator it;
 		cout << "   Q=" << !current_q_num << " ( ";
@@ -27,17 +30,19 @@ void FLookScheduler::addIORequest(IOEvent *new_IO_request) {
 		cout << ')' << endl;
 	}
 }
-IOEvent* FLookScheduler::getIOEvent() {
+IOEvent* FLookScheduler::getIOEvent(int current_track) {
+	//swap active queue with add queue, if both queues are not empty
+	if (active_q->empty() && !is_empty) {
+		if (add_q->empty())
+			is_empty = true;
+		list <IOEvent*> *temp = add_q;
+		add_q = active_q;
+		active_q = temp;
+		current_q_num = !current_q_num;
+	}
 	if (!active_q->empty() || !add_q->empty()) {
-		if (active_q->empty()) {
-			list <IOEvent*> *temp = add_q;
-			add_q = active_q;
-			active_q = temp;
-			current_q_num = !current_q_num;
-		}
 		if (!change_direction && qtrace) {
-			int current_position = current_event == NULL ? 0 : current_event->GetTarget();
-			cout << "AQ=" << current_q_num << " dir=" << updown << " curtrack=" << current_position << ":  ";
+			cout << "AQ=" << current_q_num << " dir=" << updown << " curtrack=" << current_track << ":  ";
 			list <IOEvent*>::iterator it;
 			list <IOEvent*> *print_q;
 			for (int i = 0; i < 2; i++) {
@@ -47,34 +52,34 @@ IOEvent* FLookScheduler::getIOEvent() {
 					print_q = add_q;
 				cout << "Q[" << i << "] = ( ";
 				for (it = print_q->begin(); it != print_q->end(); it++) {
-					cout << (*it)->GetOPNum() << ':' << (*it)->GetTarget() << ':' <<(*it)->GetTarget() - current_position << ' ';
+					cout << (*it)->GetOPNum() << ':' << (*it)->GetTarget() << ':' <<(*it)->GetTarget() - current_track << ' ';
 				}
 				cout << ")  ";
 			}
 			cout << endl;
 		}
-		int current_position = current_event == NULL ? 0 : current_event->GetTarget();
-		int distance = updown * (active_q->front()->GetTarget() - current_position);
-		int shortest_distance = INT_MIN;
+
+		int distance;
+		int shortest_distance = -1;
 		list <IOEvent*>::iterator it;
 		list <IOEvent*>::iterator shortest_event;
 		if (qtrace)
-				cout << "\tGet: (";
+			cout << "\tGet: (";
 		for (it = active_q->begin(); it != active_q->end(); it++) {
-			distance = updown * ((*it)->GetTarget() - current_position);
+			distance = updown * ((*it)->GetTarget() - current_track);
 			if (shortest_distance < 0 || (distance >= 0 && distance < shortest_distance)) {
 				shortest_distance = distance;
 				shortest_event = it;
 			}
 			if (qtrace && distance >= 0)
-				cout << (*it)->GetOPNum() << ':' << (*it)->GetTarget() << ':' << abs((*it)->GetTarget() - current_position) << ' ';
+				cout << (*it)->GetOPNum() << ':' << (*it)->GetTarget() << ':' << abs((*it)->GetTarget() - current_track) << ' ';
 		}
 		if (shortest_distance < 0) {
 			updown = -1 * updown;
 			change_direction = true;
 			if (qtrace)
 				cout << ") --> change direction to " << updown << endl;
-			getIOEvent();
+			getIOEvent(current_track);
 			change_direction = false;
 		} else {
 			if (qtrace)
@@ -82,12 +87,8 @@ IOEvent* FLookScheduler::getIOEvent() {
 			current_event = *shortest_event;
 			active_q->erase(shortest_event);
 		}
-//		return current_event;
 	} else {
 		current_event = NULL;
-//		return NULL;
 	}
 	return current_event;
 }
-
-

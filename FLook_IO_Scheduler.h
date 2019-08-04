@@ -19,15 +19,14 @@ private:
 	list <IOEvent*> *add_q;
 	bool current_q_num;
 	IOEvent *current_event;
-	int updown; // up = -1, down = 1
-	bool change_direction;
+	int updown;
+	bool change_direction;	//this flag is only for tracing queues
+	bool is_empty;	//flag to check if both queue are empty
 public:
 	FLookScheduler();
 	~FLookScheduler() { };
 	void addIORequest(IOEvent *new_IO_request);
-	IOEvent* getIOEvent();
+	IOEvent* getIOEvent(int current_track);
 };
-
-
 
 #endif /* FLOOK_IO_SCHEDULER_H_ */

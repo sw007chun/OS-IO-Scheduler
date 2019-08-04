@@ -15,11 +15,9 @@ class FIFOScheduler : public IOScheduler {
 private:
 	queue <IOEvent*> io_q;
 public:
-	FIFOScheduler();
 	~FIFOScheduler() { };
 	void addIORequest(IOEvent *new_IO_request);
-	IOEvent* getIOEvent();
+	IOEvent* getIOEvent(int current_track);
 };
-
 
 #endif /* FIFO_IO_SCHEDULER_H_ */
